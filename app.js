@@ -15,15 +15,38 @@ async function getDashboardData(query) {
 
     try {
         const [res1, res2, res3] = await Promise.all([url, url2, url3]);
-        const [destinations, weathers, airports] = await Promise.all([res1.json(), res2.json(), res3.json()])
+        const [destinationsResult, weathersResult, airportsResult] = await Promise.allSettled([res1.json(), res2.json(), res3.json()])
 
-        return {
-            city: destinations[0]?.name ?? null,
-            country: destinations[0]?.country ?? null,
-            temperature: weathers[0]?.temperature ?? null,
-            weather: weathers[0]?.weather_description ?? null,
-            airport: airports[0]?.name ?? null
+        const data = {};
+
+        if (destinationsResult.status === 'rejected') {
+            console.error(`Problema in destinations: `, destinationsResult.reason);
+            data.city = null;
+            data.country = null;
+        } else {
+            const destinations = destinationsResult.value;
+            data.city = destinations[0]?.name ?? null;
+            data.country = destinations[0]?.country ?? null
         }
+
+        if (weathersResult.status === 'rejected') {
+            console.error(`Problema in weather: `, weathersResult.reason);
+            data.temperature = null;
+            data.weather = null;
+        } else {
+            const weathers = weathersResult.value;
+            data.temperature = weathers[0]?.temperature ?? null;
+            data.weather = weathers[0]?.weather_description ?? null
+        }
+        if (airportsResult.status === 'rejected') {
+            console.error(`Problema in destinations: `, airportsResult.reason);
+            data.airport = null;
+        } else {
+            const airports = airportsResult.value;
+            data.airport = airports[0]?.name ?? null;
+        }
+
+        return data;
 
     } catch (error) {
         console.error(error)
