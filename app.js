@@ -15,12 +15,14 @@ async function getDashboardData(query) {
 
     try {
         const [res1, res2, res3] = await Promise.all([url, url2, url3]);
-        const [destinations, weather, airports] = await Promise.all([res1.json(), res2.json(), res3.json()])
+        const [destinations, weathers, airports] = await Promise.all([res1.json(), res2.json(), res3.json()])
 
         return {
-            destinations,
-            weather,
-            airports
+            city: destinations[0].name,
+            country: destinations[0].country,
+            temperature: weathers[0].temperature,
+            weather: weathers[0].weather_description,
+            airport: airports[0].name
         }
 
     } catch (error) {
@@ -31,16 +33,12 @@ async function getDashboardData(query) {
 }
 
 (async () => {
-    const result = await getDashboardData('vienna');
+    const result = await getDashboardData('london');
     console.log('I dati totali sono:', result)
 
-    const destination = result.destinations[0];
-    const weather = result.weather[0];
-    const airport = result.airports[0];
-
-    console.log(`${destination.name} is in ${destination.country}.
-        Today there are ${weather.temperature} degrees and it's ${weather.weather_description}.
-        The main airport is ${airport.name}`)
+    console.log(`${result.city} is in ${result.country}.
+        Today there are ${result.temperature} degrees and it's ${result.weather}.
+        The main airport is ${result.airport}`)
 })()
 
 
